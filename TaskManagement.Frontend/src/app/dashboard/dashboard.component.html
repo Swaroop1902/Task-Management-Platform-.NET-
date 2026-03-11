@@ -1,0 +1,19 @@
+<div class="row mt-4">
+    <div class="col-12">
+        <h2>Dashboard</h2>
+        <hr>
+
+        <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <div class="row mt-4">
+            <div class="col-md-3" *ngFor="let status of statusCounts">
+                <div class="card text-center mb-3 shadow-sm border-0 bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title text-uppercase text-muted">{{ status.status }}</h5>
+                        <h1 class="display-4 text-primary fw-bold">{{ status.taskCount }}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" *ngIf="isLoggedIn">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/dashboard">Task Manager</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/tasks" routerLinkActive="active">Tasks</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/reports" routerLinkActive="active">Reports</a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center text-white">
+        <span class="me-3">Hello, {{ username }} ({{ role }})</span>
+        <button class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

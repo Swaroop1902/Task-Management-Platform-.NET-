@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  userservice:
+    build: 
+      context: .
+      dockerfile: TaskManagement.UserService/Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - task-network
+
+  taskservice:
+    build: 
+      context: .
+      dockerfile: TaskManagement.TaskService/Dockerfile
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - task-network
+
+  reportingservice:
+    build: 
+      context: .
+      dockerfile: TaskManagement.ReportingService/Dockerfile
+    ports:
+      - "5003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceUrls:UserService=http://userservice:80
+      - ServiceUrls:TaskService=http://taskservice:80
+    networks:
+      - task-network
+    depends_on:
+      - userservice
+      - taskservice
+
+  frontend:
+    build: 
+      context: ./TaskManagement.Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    networks:
+      - task-network
+
+networks:
+  task-network:
+    driver: bridge

@@ -1,0 +1,31 @@
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Task Manager Login</h3>
+
+                <div class="alert alert-danger" *ngIf="errorMessage">
+                    {{ errorMessage }}
+                </div>
+
+                <form (ngSubmit)="onSubmit()">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" [(ngModel)]="username" name="username"
+                            required>
+                        <div class="form-text">Try 'admin', 'manager', or 'engineer'. Password is the same as username.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password"
+                            required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" [disabled]="!username || !password">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

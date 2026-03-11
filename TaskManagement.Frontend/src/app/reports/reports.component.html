@@ -1,0 +1,66 @@
+<div class="row mt-4">
+    <div class="col-12">
+        <h2>Reporting & Analytics</h2>
+        <hr>
+
+        <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <div class="row mt-4">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header bg-dark text-white fw-bold">Tasks By User</div>
+                    <div class="card-body">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Task Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let rep of userReports">
+                                    <td>{{ rep.username }}</td>
+                                    <td><span class="badge bg-secondary">{{ rep.taskCount }}</span></td>
+                                </tr>
+                                <tr *ngIf="userReports.length === 0">
+                                    <td colspan="2" class="text-muted text-center py-3">No user data available.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-header bg-danger text-white fw-bold">SLA Breaches (Overdue Tasks)</div>
+                    <div class="card-body">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Assignee</th>
+                                    <th>Days Overdue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let sla of slaReports">
+                                    <td>
+                                        <a [routerLink]="['/tasks', sla.taskId]"
+                                            class="text-decoration-none fw-bold text-danger">{{ sla.taskTitle }}</a>
+                                    </td>
+                                    <td>{{ sla.assigneeUsername }}</td>
+                                    <td class="text-danger fw-bold">{{ sla.daysOverdue }} days</td>
+                                </tr>
+                                <tr *ngIf="slaReports.length === 0">
+                                    <td colspan="3" class="text-muted text-center py-3">No SLA breaches found! Great
+                                        job.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
