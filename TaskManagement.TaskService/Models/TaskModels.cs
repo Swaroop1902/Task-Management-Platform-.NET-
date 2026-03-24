@@ -45,4 +45,11 @@ namespace TaskManagement.TaskService.Models
         public const string Blocked = "Blocked";
         public const string Completed = "Completed";
     }
+
+    public static class Roles
+    {
+        public const string Admin = "Admin";
+        public const string Manager = "Manager";
+        public const string Engineer = "Engineer";
+    }
 }

@@ -4,6 +4,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { TaskListComponent } from './tasks/task-list/task-list.component';
 import { TaskDetailComponent } from './tasks/task-detail/task-detail.component';
 import { ReportsComponent } from './reports/reports.component';
+import { roleGuard } from './guards/role.guard';
+import { AdminUsersComponent } from './admin-users.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -12,5 +14,11 @@ export const routes: Routes = [
     { path: 'tasks', component: TaskListComponent },
     { path: 'tasks/:id', component: TaskDetailComponent },
     { path: 'reports', component: ReportsComponent },
+    { 
+        path: 'admin/users', 
+        component: AdminUsersComponent, 
+        canActivate: [roleGuard], 
+        data: { roles: ['Admin'] } 
+    },
     { path: '**', redirectTo: 'dashboard' }
 ];

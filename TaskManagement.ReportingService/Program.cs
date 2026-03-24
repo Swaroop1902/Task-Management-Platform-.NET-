@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "super_secret_key_that_needs_to_be_long_enough_for_hs256";
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured.");
 var key = Encoding.ASCII.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -160,3 +160,5 @@ reportGroup.MapGet("/sla-breaches", async (IHttpClientFactory clientFactory, ICo
 });
 
 app.Run();
+
+namespace TaskManagement.ReportingService { public partial class Program { } }

@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "super_secret_key_that_needs_to_be_long_enough_for_hs256";
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured.");
 var key = Encoding.ASCII.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -166,4 +166,16 @@ taskGroup.MapPut("/{id}", async (int id, UpdateTaskRequest req, ClaimsPrincipal 
     return Results.NoContent();
 });
 
+taskGroup.MapDelete("/{id}", async (int id, TaskDbContext db) =>
+{
+    var task = await db.Tasks.FindAsync(id);
+    if (task == null) return Results.NotFound();
+
+    db.Tasks.Remove(task);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+}).RequireAuthorization(p => p.RequireRole(Roles.Admin, Roles.Manager));
+
 app.Run();
+
+namespace TaskManagement.TaskService { public partial class Program { } }

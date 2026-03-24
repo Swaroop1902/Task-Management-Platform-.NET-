@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "super_secret_key_that_needs_to_be_long_enough_for_hs256";
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured.");
 var key = Encoding.ASCII.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -73,11 +73,14 @@ using (var scope = app.Services.CreateScope())
 // Auth Endpoint
 app.MapPost("/auth/login", async ([Microsoft.AspNetCore.Mvc.FromBody] LoginRequest request, UserDbContext db, IConfiguration config) =>
 {
-    var user = await db.Users.FirstOrDefaultAsync(u => u.Username == request.Username && u.PasswordHash == request.Password);
-    if (user == null) return Results.Unauthorized();
+    var user = await db.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+    if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)) 
+    {
+        return Results.Unauthorized();
+    }
 
     var tokenHandler = new JwtSecurityTokenHandler();
-    var secretKey = config["Jwt:Secret"] ?? "super_secret_key_that_needs_to_be_long_enough_for_hs256";
+    var secretKey = config["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured.");
     var tokenKey = Encoding.ASCII.GetBytes(secretKey);
 
     var tokenDescriptor = new SecurityTokenDescriptor
@@ -115,7 +118,7 @@ userGroup.MapPost("/", async (CreateUserRequest req, UserDbContext db) =>
     var user = new User
     {
         Username = req.Username,
-        PasswordHash = req.Password,
+        PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
         Role = req.Role
     };
     db.Users.Add(user);
@@ -145,3 +148,5 @@ userGroup.MapDelete("/{id}", async (int id, UserDbContext db) =>
 }).RequireAuthorization(p => p.RequireRole(Roles.Admin));
 
 app.Run();
+
+namespace TaskManagement.UserService { public partial class Program { } }

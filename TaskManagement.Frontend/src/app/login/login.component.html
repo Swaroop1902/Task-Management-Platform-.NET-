@@ -12,14 +12,20 @@
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" [(ngModel)]="username" name="username"
-                            required>
+                            #usernameModel="ngModel" required>
+                        <div class="text-danger small" *ngIf="usernameModel.invalid && (usernameModel.dirty || usernameModel.touched)">
+                            Username is required
+                        </div>
                         <div class="form-text">Try 'admin', 'manager', or 'engineer'. Password is the same as username.
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password"
-                            required>
+                            #passwordModel="ngModel" required>
+                        <div class="text-danger small" *ngIf="passwordModel.invalid && (passwordModel.dirty || passwordModel.touched)">
+                            Password is required
+                        </div>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary" [disabled]="!username || !password">Login</button>

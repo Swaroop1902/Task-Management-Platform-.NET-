@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TaskService, TaskItem, CreateTaskReq, UpdateTaskReq } from '../../services/task.service';
+import { UserService, UserDto } from '../../services/user.service';
 
 @Component({
   selector: 'app-task-list',
@@ -13,22 +14,46 @@ import { TaskService, TaskItem, CreateTaskReq, UpdateTaskReq } from '../../servi
 })
 export class TaskListComponent implements OnInit {
   tasks: TaskItem[] = [];
+  users: UserDto[] = [];
   filterStatus = '';
+  filterAssigneeId: number | undefined;
+  filterStartDate = '';
+  filterEndDate = '';
+  loading = false;
 
   // Modal State
   showModal = false;
   isEditing = false;
   currentTask: any = { title: '', description: '', priority: 'Medium', status: 'Open' };
 
-  constructor(private taskService: TaskService) { }
+  constructor(private taskService: TaskService, private userService: UserService) { }
 
   ngOnInit(): void {
+    this.loadUsers();
     this.loadTasks();
   }
 
+  loadUsers() {
+    this.userService.getUsers().subscribe(data => {
+      this.users = data;
+    });
+  }
+
   loadTasks() {
-    this.taskService.getTasks(this.filterStatus || undefined).subscribe(data => {
-      this.tasks = data;
+    this.loading = true;
+    this.taskService.getTasks(
+      this.filterStatus || undefined,
+      this.filterAssigneeId,
+      this.filterStartDate || undefined,
+      this.filterEndDate || undefined
+    ).subscribe({
+      next: data => {
+        this.tasks = data;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
     });
   }
 

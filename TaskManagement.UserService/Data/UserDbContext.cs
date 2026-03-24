@@ -13,11 +13,11 @@ namespace TaskManagement.UserService.Data
         {
             base.OnModelCreating(modelBuilder);
             
-            // Seed default users
+            // Seed default users (using BCrypt hashes for 'admin', 'manager', 'engineer')
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Username = "admin", PasswordHash = "admin", Role = Roles.Admin },
-                new User { Id = 2, Username = "manager", PasswordHash = "manager", Role = Roles.Manager },
-                new User { Id = 3, Username = "engineer", PasswordHash = "engineer", Role = Roles.Engineer }
+                new User { Id = 1, Username = "admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin"), Role = Roles.Admin },
+                new User { Id = 2, Username = "manager", PasswordHash = BCrypt.Net.BCrypt.HashPassword("manager"), Role = Roles.Manager },
+                new User { Id = 3, Username = "engineer", PasswordHash = BCrypt.Net.BCrypt.HashPassword("engineer"), Role = Roles.Engineer }
             );
         }
     }

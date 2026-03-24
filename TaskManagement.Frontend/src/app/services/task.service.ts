@@ -50,10 +50,12 @@ export class TaskService {
 
     constructor(private http: HttpClient) { }
 
-    getTasks(status?: string, assigneeId?: number): Observable<TaskItem[]> {
+    getTasks(status?: string, assigneeId?: number, startDate?: string, endDate?: string): Observable<TaskItem[]> {
         let params = new HttpParams();
         if (status) params = params.set('status', status);
         if (assigneeId) params = params.set('assigneeId', assigneeId.toString());
+        if (startDate) params = params.set('startDate', startDate);
+        if (endDate) params = params.set('endDate', endDate);
 
         return this.http.get<TaskItem[]>(this.apiUrl, { params });
     }
