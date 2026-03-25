@@ -12,8 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<TaskDbContext>(options =>
-    options.UseInMemoryDatabase("TaskDb"));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 39))));
 
 builder.Services.AddCors(options =>
 {
@@ -58,10 +59,32 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-using (var scope = app.Services.CreateScope())
+try
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<TaskDbContext>();
-    dbContext.Database.EnsureCreated();
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<TaskDbContext>();
+        Console.WriteLine("STARTUP: Migrating TaskDb...");
+        dbContext.Database.Migrate(); // Auto-apply migrations
+        
+        // Forcibly seed data if missing (ensuring migrations didn't skip it)
+        Console.WriteLine("STARTUP: Seeding Tasks...");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO Tasks (Id, Title, Description, Priority, Status, AssigneeId, CreatedAt, UpdatedAt, DueDate) VALUES (1, 'Initial Task', 'Setup microservices', 'High', 'In Progress', 3, '2024-03-24 10:00:00', '2024-03-25 10:00:00', '2024-03-27 10:00:00')");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO Tasks (Id, Title, Description, Priority, Status, AssigneeId, CreatedAt, UpdatedAt, DueDate) VALUES (2, 'Overdue Task', 'This task should trigger an SLA breach', 'Medium', 'Open', 1, '2024-03-20 10:00:00', '2024-03-20 10:00:00', '2024-03-24 10:00:00')");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO Tasks (Id, Title, Description, Priority, Status, AssigneeId, CreatedAt, UpdatedAt, DueDate) VALUES (3, 'UI Implementation', 'Build dashboard using Angular', 'High', 'Blocked', 2, '2024-03-23 10:00:00', '2024-03-25 12:00:00', '2024-03-30 10:00:00')");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO Tasks (Id, Title, Description, Priority, Status, AssigneeId, CreatedAt, UpdatedAt, DueDate) VALUES (4, 'Documentation', 'Write internal API documentation', 'Low', 'Completed', 3, '2024-03-15 10:00:00', '2024-03-23 10:00:00', '2024-03-20 10:00:00')");
+
+        Console.WriteLine("STARTUP: Seeding ActivityLogs...");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO ActivityLogs (Id, TaskId, StatusChangedTo, ChangedByUserId, Timestamp) VALUES (1, 1, 'In Progress', 3, '2024-03-24 10:00:00')");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO ActivityLogs (Id, TaskId, StatusChangedTo, ChangedByUserId, Timestamp) VALUES (2, 3, 'Open', 2, '2024-03-23 10:00:00')");
+        dbContext.Database.ExecuteSqlRaw("INSERT IGNORE INTO ActivityLogs (Id, TaskId, StatusChangedTo, ChangedByUserId, Timestamp) VALUES (3, 3, 'Blocked', 1, '2024-03-25 12:00:00')");
+        Console.WriteLine("STARTUP: Seeding Complete.");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"STARTUP_ERROR: Failed to initialize TaskDb: {ex.Message}");
+    Console.WriteLine(ex.StackTrace);
 }
 
 var taskGroup = app.MapGroup("/api/tasks").RequireAuthorization();
